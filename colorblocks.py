@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from tkinter import *
 from tkinter import ttk
 
@@ -23,8 +25,10 @@ mainframe.rowconfigure(0, weight = 1)
 scoresStr = StringVar()
 scoresStr.set("Scores = 0")
 
+game_field = None
+
 def leftClick(event):
-        game_field.click(event.x, event.y)
+    game_field.click(event.x, event.y)
 
 canvas = Canvas(mainframe)
 canvas.grid(column = 0, row = 0, sticky = NSEW)
@@ -35,7 +39,7 @@ scoreLabel = ttk.Label(mainframe, textvariable = scoresStr)
 scoreLabel.grid(column = 0, row = 1, sticky = SW)
     
 def drawRectangle(x1, y1, x2, y2, color):
-        canvas.create_rectangle(x1, y1, x2, y2, fill = color, width = 1, tags = "blocks")
+    canvas.create_rectangle(x1, y1, x2, y2, fill = color, width = 1, tags = "blocks")
         
 class Block(object):
     def __init__(self):
@@ -58,10 +62,12 @@ class Field(object):
         self.field = []
         self.selected_set = []
 
+        #fill in a 'field' object with 'block' objects
         for i in range(self.width):
             self.field.append([Block() for j in range(self.height)])
 
     def __str__(self):
+        #string representation of a 'field' is used only for a debugging purpose
         res = ""
         
         for i in range(self.width):
@@ -76,11 +82,11 @@ class Field(object):
         if x > self.width * self.size or y > self.height * self.size:
             return
         
-        pos = (x // self.size, y // self.size)        
+        pos = (x // self.size, y // self.size)  #position of a selected 'block'       
 
-        self.selected_set = [pos]
+        self.selected_set = [pos] 
         self.addSelectedBlocks(pos)
-                
+        
         self.updateScores()
         self.deleteSelectedBlocks()
  
@@ -101,7 +107,10 @@ class Field(object):
         return False
     
     def addSelectedBlocks(self, pos):
-
+        '''
+        recursively adds neighbouring blocks of the same color to the initial list
+        of positions of 'blocks'
+        '''
         new_positions = [(pos[0] - 1, pos[1]), (pos[0] + 1, pos[1]),
                          (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]        
 
@@ -117,7 +126,11 @@ class Field(object):
         scores += len(self.selected_set) ** 2
         scoresStr.set("Scores = " + str(scores))
 
-    def deleteSelectedBlocks(self):        
+    def deleteSelectedBlocks(self):
+        '''
+        sets the color of a selected group of 'blocks' to 'black'
+        for further removal upon updating a 'field'
+        '''
         for pos in self.selected_set:
             self.field[pos[0]][pos[1]].setColor("black")
 
@@ -128,6 +141,7 @@ class Field(object):
     def updateColumn(self, column):
         updated_column = []
 
+        #remove 'blocks' of the same color that were selected (black)
         for block in column:
             if block.getColor() != "black":
                 updated_column.append(block)
@@ -150,9 +164,14 @@ class Field(object):
 
         scoreLabel["text"] = "Score =" + str(scores)
 
-for child in mainframe.winfo_children(): child.grid_configure(padx = 10, pady = 10)
+def main():
+    for child in mainframe.winfo_children(): child.grid_configure(padx = 10, pady = 10)
   
-game_field = Field(18, 12, 25)
-game_field.drawField()
+    global game_field
+    game_field = Field(18, 12, 25)
+    game_field.drawField()
 
-root.mainloop()
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()

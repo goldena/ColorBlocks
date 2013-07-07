@@ -1,4 +1,4 @@
 ColorBlocks
 ===========
 
-Small game (Python)
+Small game (Python 3.3)
